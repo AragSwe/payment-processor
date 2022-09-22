@@ -1,0 +1,17 @@
+
+version: '3.4'
+
+services:
+  paymentconsumer:
+    image: paymentconsumer
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    depends_on:
+      - rabbitmq
+  rabbitmq:
+    image: rabbitmq:3.11-rc-management
+    container_name: payment-consumer-rabbit
+    ports:
+      - 15672:15672
+      - 5672:5672
