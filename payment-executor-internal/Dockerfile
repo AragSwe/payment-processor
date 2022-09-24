@@ -8,16 +8,16 @@ USER appuser
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0-focal AS build
 WORKDIR /src
-COPY ["payment-consumer/payment-consumer.csproj", "payment-consumer/"]
-RUN dotnet restore "payment-consumer/payment-consumer.csproj"
+COPY ["payment-executor-internal/payment-executor-internal.csproj", "payment-executor-internal/"]
+RUN dotnet restore "payment-executor-internal/payment-executor-internal.csproj"
 COPY . .
-WORKDIR "/src/payment-consumer"
-RUN dotnet build "payment-consumer.csproj" -c Release -o /app/build
+WORKDIR "/src/payment-executor-internal"
+RUN dotnet build "payment-executor-internal.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "payment-consumer.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "payment-executor-internal.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "payment-consumer.dll"]
+ENTRYPOINT ["dotnet", "payment-executor-internal.dll"]

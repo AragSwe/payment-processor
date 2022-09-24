@@ -6,7 +6,14 @@ services:
     image: paymentconsumer
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: payment-consumer/Dockerfile
+    depends_on:
+      - rabbitmq
+  paymentexecutorinternal:
+    image: paymentexecutorinternal
+    build:
+      context: .
+      dockerfile: payment-executor-internal/Dockerfile
     depends_on:
       - rabbitmq
   rabbitmq:

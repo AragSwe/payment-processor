@@ -1,0 +1,11 @@
+
+version: '3.4'
+
+services:
+  paymentexecutorinternal:
+    image: paymentexecutorinternal
+    build:
+      context: .
+      dockerfile: payment-executor-internal/Dockerfile
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw
