@@ -1,38 +1,31 @@
-﻿using System.Text;
-using Microsoft.Extensions.Hosting;
+﻿using payment_models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Text.Json;
 
-using IHost host = Host.CreateDefaultBuilder(args)
-    .Build();
-
-Task.Delay(10*1000).Wait();
-
-var factory = new ConnectionFactory { HostName = "payment-consumer-rabbit" };
-using (var connection = factory.CreateConnection())
-using (var channel = connection.CreateModel())
+await rabbit_consumer.RabbitConsumer.ConsumeRabbitQueue("incoming", (consumerObj, ea) =>
 {
-    channel.QueueDeclare(
-        queue: "incoming",
-        durable: false,
-        exclusive: false,
-        autoDelete: false,
-        arguments: null
-    );
+    var consumer = consumerObj as EventingBasicConsumer;
+    var body = ea.Body.ToArray();
+    var message = System.Text.Encoding.UTF8.GetString(body);
+    var messageObj = JsonSerializer.Deserialize<Payment>(ea.Body.ToArray());
 
-    var consumer = new EventingBasicConsumer(channel);
-    consumer.Received += (_, ea) =>
+    if (messageObj is not null)
     {
-        var body = ea.Body.ToArray();
-        var message = Encoding.UTF8.GetString(body);
-        Console.WriteLine($" Consumed {message}");
-    };
+        messageObj.Suti = "newsuti";
+        var newMessage = JsonSerializer.Serialize(messageObj);
+        consumer!.Model.BasicPublish(
+            exchange: "internal",
+            routingKey: $"internal.{messageObj.Currency.ToLower()}",
+            body: System.Text.Encoding.UTF8.GetBytes(newMessage));
+    }
+    else
+    {
+        consumer!.Model.BasicPublish(
+            exchange: "error",
+            routingKey: "serailization",
+            body: ea.Body);
+    }
 
-    channel.BasicConsume(
-        queue: "incoming",
-        autoAck: true,
-        consumer: consumer
-    );
-
-    await host.RunAsync();
-}
+    Console.WriteLine($"Consumed {message}");
+});
