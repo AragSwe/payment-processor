@@ -6,8 +6,11 @@ using RabbitMQ.Client.Events;
 namespace rabbit_consumer;
 public static class RabbitConsumer
 {
-    public static async Task ConsumeRabbitQueue(string queueName, EventHandler<BasicDeliverEventArgs> eventHandler)
+    public static async Task ConsumeRabbitQueue(string queueName, Action<EventingBasicConsumer, BasicDeliverEventArgs> eventHandler, string exchangeName = "", string routingKey = "")
     {
+        if (string.IsNullOrWhiteSpace(exchangeName))
+            exchangeName = queueName;
+
         using IHost host = Host.CreateDefaultBuilder()
             .Build();
 
@@ -26,17 +29,31 @@ public static class RabbitConsumer
             );
             
             channel.ExchangeDeclare(
-                exchange: queueName,
+                exchange: exchangeName,
                 type: ExchangeType.Topic,
                 durable:false,
                 autoDelete: false,
                 arguments: null
             );
 
-            channel.QueueBind(queueName, queueName, "", null);
+            channel.QueueBind(queueName, exchangeName, routingKey, null);
 
             var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += eventHandler;
+            consumer.Received += (consumerObj, ea) =>
+            {
+                try {
+                    var consumer = consumerObj as EventingBasicConsumer;
+                    eventHandler(consumer!, ea);
+                }
+                catch (Exception ex) {
+                    Console.WriteLine(ex.Message);
+                    
+                    consumer!.Model.BasicPublish(
+                        exchange: "error",
+                        routingKey: "",
+                        body: ea.Body);
+                    }
+            };
 
             channel.BasicConsume(
                 queue: queueName,
