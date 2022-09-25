@@ -22,3 +22,20 @@ services:
     ports:
       - 15672:15672
       - 5672:5672
+  api:
+    image: api
+    container_name: payment-web-api
+    build:
+      context: .
+      dockerfile: web-app/api/Dockerfile
+    ports:
+      - 5269:5269
+  paymentwebapp:
+      image: paymentwebapp
+      build:
+        context: web-app/payment-web-app
+        dockerfile: ./Dockerfile
+      environment:
+        NODE_ENV: production
+      ports:
+        - 4200:4200

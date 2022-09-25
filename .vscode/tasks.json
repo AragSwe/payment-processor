@@ -92,6 +92,19 @@
             "netCore": {
                 "appProject": "${workspaceFolder}/payment-consumer.csproj"
             }
+        },
+        {
+            "type": "docker-build",
+            "label": "docker-build",
+            "platform": "node",
+            "dockerBuild": {
+                "dockerfile": "${workspaceFolder}/web-app/payment-web-app/Dockerfile",
+                "context": "${workspaceFolder}/web-app/payment-web-app",
+                "pull": true
+            },
+            "node": {
+                "package": "${workspaceFolder}/web-app/payment-web-app/package.json"
+            }
         }
     ]
 }

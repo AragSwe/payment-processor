@@ -25,6 +25,17 @@
             "netCore": {
                 "appProject": "${workspaceFolder}/payment-consumer.csproj"
             }
+        },
+        {
+            "name": "Docker Node.js Launch",
+            "type": "docker",
+            "request": "launch",
+            "preLaunchTask": "docker-run: debug",
+            "platform": "node",
+            "node": {
+                "package": "${workspaceFolder}/web-app/payment-web-app/package.json",
+                "localRoot": "${workspaceFolder}/web-app/payment-web-app"
+            }
         }
     ]
 }

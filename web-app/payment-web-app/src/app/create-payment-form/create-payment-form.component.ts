@@ -18,7 +18,7 @@ export class CreatePaymentFormComponent implements OnInit {
   }
 
   createPayment() {
-    this.httpClient.post('https://localhost:7131/payment',
+    this.httpClient.post('http://localhost:5269/payment',
     {
       fromAccount: this.fromAccount,
       toAccount: this.toAccount,
