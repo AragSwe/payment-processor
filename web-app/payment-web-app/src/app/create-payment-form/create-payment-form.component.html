@@ -1,0 +1,13 @@
+<form (ngSubmit)="createPayment()">
+    <label for="fromAccount">From account</label>
+    <input type="text" id="fromAccount" [(ngModel)]="fromAccount" name="fromAccount" />
+    <label for="toAccount">From account</label>
+    <input type="text" id="toAccount" [(ngModel)]="toAccount" name="toAccount" />
+    <label for="currency">Currency</label>
+    <select id="currency" [(ngModel)]="currency" name="currency">
+        <option>SEK</option>
+    </select>
+    <label for="amount">Amount</label>
+    <input type="number" id="amount" [(ngModel)]="amount" name="amount" />
+    <button type="submit" id="submitPayment">Create payment</button>
+</form>
