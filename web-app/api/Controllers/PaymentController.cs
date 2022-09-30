@@ -1,4 +1,8 @@
+using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using payment_models;
+using RabbitMQ.Client;
 
 namespace api.Controllers;
 
@@ -14,8 +18,20 @@ public class PaymentController : ControllerBase
     }
 
     [HttpPost]
-    public bool Post()
+    public bool Post([FromBody] PaymentOrder paymentOrder)
     {
-        return true;
+        var factory = new ConnectionFactory { HostName = "payment-consumer-rabbit" };
+        using (var connection = factory.CreateConnection())
+        using (var channel = connection.CreateModel())
+        {
+            var body = JsonSerializer.Serialize(paymentOrder);
+            channel.BasicPublish(
+                exchange: "incoming",
+                routingKey: "",
+                mandatory: false,
+                basicProperties: null,
+                body: Encoding.UTF8.GetBytes(body));
+            return true;
+        }
     }
 }

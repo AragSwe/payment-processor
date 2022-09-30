@@ -30,6 +30,8 @@ services:
       dockerfile: web-app/api/Dockerfile
     ports:
       - 5269:5269
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
   paymentwebapp:
       image: paymentwebapp
       build:
